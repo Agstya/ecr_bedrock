@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+# required env vars (buildspec)
+set -u
+: "$ECR_REPO_URI"
+: "$ECR_REPO_NAME"
+
+if [[ -z "$1" ]]; then
+    echo "Usage: $0 <target_dir>"
+    exit 1
+fi
+TARGET_DIR="$1"
+
+# Declare _buildargs array before the loop
+declare -a _buildargs
+
+# Load Nexus credentials from environment variables
+NEXUS_USERNAME=${NEXUS_USERNAME:= }
+NEXUS_PASSWORD=${NEXUS_PASSWORD:= }
+
+# Ensure Nexus credentials are passed as build arguments
+_buildargs+=("--build-arg NEXUS_USERNAME=$NEXUS_USERNAME")
+_buildargs+=("--build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD")
+
+# Set the PIP_INDEX_URL with the Nexus credentials
+PIP_INDEX_URL="https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexusrepodirect.thehartford.com/repository/pypi_public/simple"
+
+# Pass PIP_INDEX_URL as a build argument to Docker
+_buildargs+=("--build-arg PIP_INDEX_URL=$PIP_INDEX_URL")
+
+# Path to the Dockerfile
+_workingdir=$(dirname $(readlink -f "$0"))
+_dockerfile="$_workingdir/Dockerfile"
+
+# Set version
+_version="1.0.0"
+
+# Add more build arguments if necessary
+_buildargs+=("--build-arg PYTHON_VERSION=$_version")
+
+# Build the Docker image
+DOCKER_BUILDKIT=1 docker build \
+    -f "$_dockerfile" \
+    -t "$ECR_REPO_URI/$ECR_REPO_NAME:$_version" \
+    "${_buildargs[@]}" \
+    --label APP_ID="$APP_ID" \
+    --label GIT_COMMIT_SHA="$GIT_COMMIT_SHA" \
+    --label CODEBUILD_BUILD_ID="$CODEBUILD_BUILD_ID" \
+    .
+
+# Push the image to the repository
+docker push "$ECR_REPO_URI/$ECR_REPO_NAME:$_version"
+
+# Error handling for directory change
+if ! cd "$_workingdir"; then
+    echo "Failed to change directory to $_workingdir"
+    exit 1
+fi
