@@ -1,0 +1,67 @@
+# Use the base image
+FROM dockerbuildoutputexternal.thehartford.com/byoi/python:3.8-slim-buster
+
+# Metadata
+MAINTAINER MLOps <MLOpsCoreTeam@thehartford.com>
+
+# Argument for Nexus credentials and pip configuration
+ARG REGION=us-east-1
+ARG ARG_PIP_INDEX=https://nexusrepodirect.thehartford.com/repository/pypi_public/pypi
+ARG ARG_PIP_INDEX_URL=https://nexusrepodirect.thehartford.com/repository/pypi_public/simple
+ARG ARG_PIP_TRUSTED_HOST=nexusrepodirect.thehartford.com
+
+# Nexus credentials
+ARG ARG_USERNAME=None 
+ARG ARG_PASSWORD=None
+
+# Create .netrc for Nexus authentication
+RUN echo "machine nexusrepodirect.thehartford.com\n" \
+    "  login ${ARG_USERNAME}\n" \
+    "  password ${ARG_PASSWORD}\n" > ~/.netrc && \
+    chmod 600 ~/.netrc
+
+# Set pip environment variables
+ENV PIP_INDEX=$ARG_PIP_INDEX \
+    PIP_INDEX_URL=$ARG_PIP_INDEX_URL \
+    PIP_TRUSTED_HOST=$ARG_PIP_TRUSTED_HOST \
+    PATH=/root/.local/bin:$PATH
+
+# Update apt sources list to use HTTPS and install required dependencies
+RUN sed --in-place --regexp-extended 's http https g' /etc/apt/sources.list && \
+    apt-get -y update && apt-get install -y --no-install-recommends \
+    jq \
+    unzip \
+    gcc \
+    g++ \
+    libc-dev \
+    libffi-dev \
+    moreutils && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies using pip and Nexus credentials
+RUN python3.8 -m pip install --user --index-url $PIP_INDEX_URL --trusted-host $PIP_TRUSTED_HOST \
+    streamlit==1.28.2 \
+    dash==2.14.1 \
+    gunicorn==21.2.0 \
+    pandas \
+    boto3 \
+    s3fs \
+    numpy \
+    fsspec \
+    awscli==1.27.106
+
+# Create working directory for utilities
+WORKDIR /utils 
+
+# Copy utility scripts and make them executable
+COPY container_utils/* /utils/
+RUN chmod +x /utils/entry.sh
+
+# Set the working directory for the app
+WORKDIR /app
+
+# Expose the application port
+EXPOSE 8080
+
+# Set the entrypoint script
+ENTRYPOINT ["/utils/entry.sh"]
