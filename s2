@@ -1,0 +1,185 @@
+Based on the log you provided, the error is due to the incorrect use of the `--build-arg` flag with the `docker buildx build` command. The regular `docker build` command should be used instead of `docker buildx build` if you don’t need the additional features that `buildx` provides. 
+
+Here are the corrected versions of your files:
+
+### 1. Dockerfile:
+```Dockerfile
+# Use the base image
+FROM dockerbuildoutputexternal.thehartford.com/byoi/python:3.8-slim-buster
+
+# Argument for Nexus credentials and pip configuration
+ARG REGION=us-east-1
+ARG ARG_PIP_INDEX=https://nexusrepodirect.thehartford.com/repository/pypi_public/pypi
+ARG ARG_PIP_INDEX_URL=https://nexusrepodirect.thehartford.com/repository/pypi_public/simple
+ARG ARG_PIP_TRUSTED_HOST=nexusrepodirect.thehartford.com
+
+# Nexus credentials
+ARG NEXUS_USERNAME
+ARG NEXUS_PASSWORD
+
+# Create .netrc for Nexus authentication
+RUN echo "machine nexusrepodirect.thehartford.com\n" \
+    "  login ${NEXUS_USERNAME}\n" \
+    "  password ${NEXUS_PASSWORD}\n" > ~/.netrc && \
+    chmod 600 ~/.netrc
+
+# Set pip environment variables
+ENV PIP_INDEX=$ARG_PIP_INDEX \
+    PIP_INDEX_URL=$ARG_PIP_INDEX_URL \
+    PIP_TRUSTED_HOST=$ARG_PIP_TRUSTED_HOST \
+    PATH=/root/.local/bin:$PATH
+
+# Update apt sources list to use HTTPS and install required dependencies
+RUN sed --in-place --regexp-extended 's http https g' /etc/apt/sources.list && \
+    apt-get -y update && apt-get install -y --no-install-recommends \
+    jq \
+    unzip \
+    gcc \
+    g++ \
+    libc-dev \
+    libffi-dev \
+    moreutils && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies using pip and Nexus credentials
+RUN python3.8 -m pip install --user --index-url $PIP_INDEX_URL --trusted-host $PIP_TRUSTED_HOST \
+    streamlit==1.28.2 \
+    dash==2.14.1 \
+    gunicorn==21.2.0 \
+    pandas \
+    boto3 \
+    s3fs \
+    numpy \
+    fsspec \
+    awscli==1.27.106
+
+# Create working directory for utilities
+WORKDIR /utils 
+
+# Copy utility scripts and make them executable
+COPY container_utils/* /utils/
+RUN chmod +x /utils/entry.sh
+
+# Set the working directory for the app
+WORKDIR /app
+
+# Expose the application port
+EXPOSE 8080
+
+# Set the entrypoint script
+ENTRYPOINT ["/utils/entry.sh"]
+```
+
+### 2. build_image.sh:
+```bash
+#!/usr/bin/env bash
+
+# required env vars (buildspec)
+set -u
+: "$ECR_REPO_URI"
+: "$ECR_REPO_NAME"
+
+if [[ -z "$1" ]]; then
+    echo "Usage: $0 <target_dir>"
+    exit 1
+fi
+TARGET_DIR="$1"
+
+# Declare _buildargs array before the loop
+declare -a _buildargs
+
+# Load Nexus credentials from environment variables
+NEXUS_USERNAME=${NEXUS_USERNAME:= }
+NEXUS_PASSWORD=${NEXUS_PASSWORD:= }
+
+# Ensure Nexus credentials are passed as build arguments
+_buildargs+=("--build-arg NEXUS_USERNAME=$NEXUS_USERNAME")
+_buildargs+=("--build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD")
+
+# Set the PIP_INDEX_URL with the Nexus credentials
+PIP_INDEX_URL="https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexusrepodirect.thehartford.com/repository/pypi_public/simple"
+
+# Pass PIP_INDEX_URL as a build argument to Docker
+_buildargs+=("--build-arg PIP_INDEX_URL=$PIP_INDEX_URL")
+
+# Path to the Dockerfile
+_workingdir=$(dirname $(readlink -f "$0"))
+_dockerfile="$_workingdir/Dockerfile"
+
+# Set version
+_version="1.0.0"
+
+# Add more build arguments if necessary
+_buildargs+=("--build-arg PYTHON_VERSION=$_version")
+
+# Build the Docker image using `docker build`
+DOCKER_BUILDKIT=1 docker build \
+    -f "$_dockerfile" \
+    -t "$ECR_REPO_URI/$ECR_REPO_NAME:$_version" \
+    "${_buildargs[@]}" \
+    --label APP_ID="$APP_ID" \
+    --label GIT_COMMIT_SHA="$GIT_COMMIT_SHA" \
+    --label CODEBUILD_BUILD_ID="$CODEBUILD_BUILD_ID" \
+    .
+
+# Push the image to the repository
+docker push "$ECR_REPO_URI/$ECR_REPO_NAME:$_version"
+
+# Error handling for directory change
+if ! cd "$_workingdir"; then
+    echo "Failed to change directory to $_workingdir"
+    exit 1
+fi
+```
+
+### 3. buildspec.dev.yml:
+```yaml
+version: 0.2
+
+env:
+  secrets-manager:
+    NEXUS_USERNAME: arn:aws:secretsmanager:us-east-1:293176983353:secret:nexus-8ZgQUY:username
+    NEXUS_PASSWORD: arn:aws:secretsmanager:us-east-1:293176983353:secret:nexus-8ZgQUY:password
+  variables:
+    ECR_REPO_NAME: fta/snapshot/bedrock
+
+phases:
+  pre_build:
+    commands:
+      - echo "[pre_build]"
+      - echo "Listing all files..."
+      - ls -al
+      - docker --version
+      - ECR_REPO_URI=$ECR_BASE_REPOSITORY_URI
+      - ACCOUNT_ID="$(echo $CODEBUILD_BUILD_ARN | cut -f5 -d ':')"
+      - REPO_URL="${ECR_REPO_URI}/$ECR_REPO_NAME"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 996142040734.dkr.ecr.us-east-1.amazonaws.com
+      - docker login --username $NEXUS_USERNAME --password $NEXUS_PASSWORD dockerbuildoutputexternal.thehartford.com
+
+  build:
+    commands:
+      - echo "[image build]"
+      - cd fta-bedrock-image
+      - pwd 
+      - ls -al
+      - echo "Dockerfile"
+      - cat Dockerfile
+      - echo "build_image.sh"
+      - cat build_image.sh
+      - echo "buildspec.dev.yml"
+      - cat buildspec.dev.yml
+      - chmod +x build_image.sh
+      - ./build_image.sh .
+
+cache:
+  paths:
+    - "/root/.cache/pip/**/*"
+```
+
+### Summary of Key Changes:
+1. **Dockerfile**: Proper use of `ARG` and `ENV` for Nexus credentials and pip settings.
+2. **build_image.sh**: Switched to `docker build` instead of `docker buildx build`, and included the correct build arguments.
+3. **buildspec.dev.yml**: Ensured environment variables are passed properly and corrected `docker` commands.
+
+These changes should resolve the issues you're encountering, including the unknown flag error and unencrypted password warnings.
