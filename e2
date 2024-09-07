@@ -1,0 +1,247 @@
+Please review all the files, and provide corrected files to resolve the issue in the log:
+
+      - Dockerfile
+      - build_image.sh
+      - buildspec.dev.yml
+
+Log:
+[Container] 2024/09/07 19:13:33.329040 Running on CodeBuild On-demand
+[Container] 2024/09/07 19:13:33.329053 Waiting for agent ping
+[Container] 2024/09/07 19:13:33.530248 Waiting for DOWNLOAD_SOURCE
+[Container] 2024/09/07 19:13:41.894095 Phase is DOWNLOAD_SOURCE
+[Container] 2024/09/07 19:13:41.933941 CODEBUILD_SRC_DIR=/codebuild/output/src858/src/codestar-connections.us-east-1.amazonaws.com/git-http/570315879108/us-east-1/b00b6e1c-9a17-4eb4-975d-c355b0dbba37/HIG/cio_automationengineering_ragaas_app
+[Container] 2024/09/07 19:13:41.934132 CODEBUILD_SRC_DIR_BuildUtils=/codebuild/output/src858/src/codestar-connections.us-east-1.amazonaws.com/git-http/570315879108/us-east-1/b00b6e1c-9a17-4eb4-975d-c355b0dbba37/HIG/cto_cloud_infrastructure
+[Container] 2024/09/07 19:13:41.937110 YAML location is /codebuild/output/src858/src/codestar-connections.us-east-1.amazonaws.com/git-http/570315879108/us-east-1/b00b6e1c-9a17-4eb4-975d-c355b0dbba37/HIG/cio_automationengineering_ragaas_app/fta-bedrock-image/buildspec.dev.yml
+[Container] 2024/09/07 19:13:41.938918 Setting HTTP client timeout to higher timeout for S3 source
+[Container] 2024/09/07 19:13:41.939065 Processing environment variables
+[Container] 2024/09/07 19:13:41.981402 Setting HTTP client timeout to higher timeout for S3 source
+[Container] 2024/09/07 19:13:42.097553 Setting HTTP client timeout to higher timeout for S3 source
+[Container] 2024/09/07 19:13:42.386339 No runtime version selected in buildspec.
+[Container] 2024/09/07 19:13:42.447858 Moving to directory /codebuild/output/src858/src/codestar-connections.us-east-1.amazonaws.com/git-http/570315879108/us-east-1/b00b6e1c-9a17-4eb4-975d-c355b0dbba37/HIG/cio_automationengineering_ragaas_app
+[Container] 2024/09/07 19:13:42.450953 Unable to initialize cache download: no paths specified to be cached
+[Container] 2024/09/07 19:13:42.606813 Configuring ssm agent with target id: codebuild:19816907-6bf8-4898-858c-3a51d8095740
+[Container] 2024/09/07 19:13:42.655342 Successfully updated ssm agent configuration
+[Container] 2024/09/07 19:13:42.655729 Registering with agent
+[Container] 2024/09/07 19:13:42.706951 Phases found in YAML: 2
+[Container] 2024/09/07 19:13:42.707058  PRE_BUILD: 10 commands
+[Container] 2024/09/07 19:13:42.707067  BUILD: 12 commands
+[Container] 2024/09/07 19:13:42.707364 Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED
+[Container] 2024/09/07 19:13:42.707379 Phase context status code:  Message: 
+[Container] 2024/09/07 19:13:42.823747 Entering phase INSTALL
+[Container] 2024/09/07 19:13:42.826156 Phase complete: INSTALL State: SUCCEEDED
+[Container] 2024/09/07 19:13:42.826169 Phase context status code:  Message: 
+[Container] 2024/09/07 19:13:42.903402 Entering phase PRE_BUILD
+[Container] 2024/09/07 19:13:42.980071 Running command echo "[pre_build]"
+[pre_build]
+[Container] 2024/09/07 19:13:42.986467 Running command echo "Listing all files..."
+Listing all files...
+[Container] 2024/09/07 19:13:42.992333 Running command ls -al
+total 12
+drwxr-xr-x 6 root root  105 Sep  7 19:13 .
+drwxr-xr-x 4 root root   82 Sep  7 19:13 ..
+drwxr-xr-x 8 root root  162 Sep  7 19:13 .git
+drwxr-xr-x 2 root root   24 Sep  7 19:13 .github
+-rw-r--r-- 1 root root 6113 Sep  7 19:13 .gitignore
+-rw-r--r-- 1 root root  110 Sep  7 19:13 README.md
+drwxr-xr-x 2 root root   24 Sep  7 19:13 docs
+drwxr-xr-x 2 root root   88 Sep  7 19:13 fta-bedrock-image
+[Container] 2024/09/07 19:13:42.999824 Running command docker --version
+Docker version 26.1.4, build 5650f9b
+[Container] 2024/09/07 19:13:43.013387 Running command ECR_REPO_URI=$ECR_BASE_REPOSITORY_URI
+[Container] 2024/09/07 19:13:43.018942 Running command ACCOUNT_ID="$(echo $CODEBUILD_BUILD_ARN | cut -f5 -d ':')"
+[Container] 2024/09/07 19:13:43.026310 Running command REPO_URL="${ECR_REPO_URI}/$ECR_REPO_NAME"
+[Container] 2024/09/07 19:13:43.032028 Running command aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+Login Succeeded
+[Container] 2024/09/07 19:13:57.059138 Running command aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 996142040734.dkr.ecr.us-east-1.amazonaws.com
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+Login Succeeded
+[Container] 2024/09/07 19:13:57.708534 Running command docker login --username $NEXUS_USERNAME --password $NEXUS_PASSWORD dockerbuildoutputexternal.thehartford.com
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+Login Succeeded
+[Container] 2024/09/07 19:13:57.908140 Phase complete: PRE_BUILD State: SUCCEEDED
+[Container] 2024/09/07 19:13:57.908160 Phase context status code:  Message: 
+[Container] 2024/09/07 19:13:57.952609 Entering phase BUILD
+[Container] 2024/09/07 19:13:57.953445 Running command echo "[image build]"
+[image build]
+[Container] 2024/09/07 19:13:57.960041 Running command cd fta-bedrock-image
+[Container] 2024/09/07 19:13:57.966261 Running command pwd
+/codebuild/output/src858/src/codestar-connections.us-east-1.amazonaws.com/git-http/570315879108/us-east-1/b00b6e1c-9a17-4eb4-975d-c355b0dbba37/HIG/cio_automationengineering_ragaas_app/fta-bedrock-image
+[Container] 2024/09/07 19:13:57.972204 Running command ls -al
+total 16
+drwxr-xr-x 2 root root   88 Sep  7 19:13 .
+drwxr-xr-x 6 root root  105 Sep  7 19:13 ..
+-rw-r--r-- 1 root root 1855 Sep  7 19:13 Dockerfile
+-rw-r--r-- 1 root root    1 Sep  7 19:13 README.md
+-rw-r--r-- 1 root root 1644 Sep  7 19:13 build_image.sh
+-rw-r--r-- 1 root root 1303 Sep  7 19:13 buildspec.dev.yml
+[Container] 2024/09/07 19:13:57.980090 Running command echo "Dockerfile"
+Dockerfile
+[Container] 2024/09/07 19:13:57.986387 Running command cat Dockerfile
+# Use the base image
+FROM dockerbuildoutputexternal.thehartford.com/byoi/python:3.8-slim-buster
+# Argument for Nexus credentials and pip configuration
+ARG REGION=us-east-1
+ARG ARG_PIP_INDEX=https://nexusrepodirect.thehartford.com/repository/pypi_public/pypi
+ARG ARG_PIP_INDEX_URL=https://nexusrepodirect.thehartford.com/repository/pypi_public/simple
+ARG ARG_PIP_TRUSTED_HOST=nexusrepodirect.thehartford.com
+# Nexus credentials
+ARG NEXUS_USERNAME
+ARG NEXUS_PASSWORD
+# Create .netrc for Nexus authentication
+RUN echo "machine nexusrepodirect.thehartford.com\n" \
+    "  login ${NEXUS_USERNAME}\n" \
+    "  password ${NEXUS_PASSWORD}\n" > ~/.netrc &#38;&#38; \
+    chmod 600 ~/.netrc
+# Set pip environment variables
+ENV PIP_INDEX=$ARG_PIP_INDEX \
+    PIP_INDEX_URL=$ARG_PIP_INDEX_URL \
+    PIP_TRUSTED_HOST=$ARG_PIP_TRUSTED_HOST \
+    PATH=/root/.local/bin:$PATH
+# Update apt sources list to use HTTPS and install required dependencies
+RUN sed --in-place --regexp-extended 's http https g' /etc/apt/sources.list &#38;&#38; \
+    apt-get -y update &#38;&#38; apt-get install -y --no-install-recommends \
+    jq \
+    unzip \
+    gcc \
+    g++ \
+    libc-dev \
+    libffi-dev \
+    moreutils &#38;&#38; \
+    apt-get clean &#38;&#38; rm -rf /var/lib/apt/lists/*
+# Install Python dependencies using pip and Nexus credentials
+RUN python3.8 -m pip install --user --index-url $PIP_INDEX_URL --trusted-host $PIP_TRUSTED_HOST \
+    streamlit==1.28.2 \
+    dash==2.14.1 \
+    gunicorn==21.2.0 \
+    pandas \
+    boto3 \
+    s3fs \
+    numpy \
+    fsspec \
+    awscli==1.27.106
+# Create working directory for utilities
+WORKDIR /utils 
+# Copy utility scripts and make them executable
+COPY container_utils/* /utils/
+RUN chmod +x /utils/entry.sh
+# Set the working directory for the app
+WORKDIR /app
+# Expose the application port
+EXPOSE 8080
+# Set the entrypoint script
+ENTRYPOINT ["/utils/entry.sh"]
+[Container] 2024/09/07 19:13:57.993449 Running command echo "build_image.sh"
+build_image.sh
+[Container] 2024/09/07 19:13:58.000046 Running command cat build_image.sh
+#!/usr/bin/env bash
+# required env vars (buildspec)
+set -u
+: "$ECR_REPO_URI"
+: "$ECR_REPO_NAME"
+if [[ -z "$1" ]]; then
+    echo "Usage: $0 <target_dir>"
+    exit 1
+fi
+TARGET_DIR="$1"
+# Declare _buildargs array before the loop
+declare -a _buildargs
+# Load Nexus credentials from environment variables
+NEXUS_USERNAME=${NEXUS_USERNAME:= }
+NEXUS_PASSWORD=${NEXUS_PASSWORD:= }
+# Ensure Nexus credentials are passed as build arguments
+_buildargs+=("--build-arg NEXUS_USERNAME=$NEXUS_USERNAME")
+_buildargs+=("--build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD")
+# Set the PIP_INDEX_URL with the Nexus credentials
+PIP_INDEX_URL="https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexusrepodirect.thehartford.com/repository/pypi_public/simple"
+# Pass PIP_INDEX_URL as a build argument to Docker
+_buildargs+=("--build-arg PIP_INDEX_URL=$PIP_INDEX_URL")
+# Path to the Dockerfile
+_workingdir=$(dirname $(readlink -f "$0"))
+_dockerfile="$_workingdir/Dockerfile"
+# Set version
+_version="1.0.0"
+# Add more build arguments if necessary
+_buildargs+=("--build-arg PYTHON_VERSION=$_version")
+# Build the Docker image using `docker build` instead of `docker buildx build`
+DOCKER_BUILDKIT=1 docker build \
+    -f "$_dockerfile" \
+    -t "$ECR_REPO_URI/$ECR_REPO_NAME:$_version" \
+    "${_buildargs[@]}" \
+    --label APP_ID="$APP_ID" \
+    --label GIT_COMMIT_SHA="$GIT_COMMIT_SHA" \
+    --label CODEBUILD_BUILD_ID="$CODEBUILD_BUILD_ID" \
+    .
+# Push the image to the repository
+docker push "$ECR_REPO_URI/$ECR_REPO_NAME:$_version"
+# Error handling for directory change
+if ! cd "$_workingdir"; then
+    echo "Failed to change directory to $_workingdir"
+    exit 1
+fi
+[Container] 2024/09/07 19:13:58.007510 Running command echo "buildspec.dev.yml"
+buildspec.dev.yml
+[Container] 2024/09/07 19:13:58.014062 Running command cat buildspec.dev.yml
+version: 0.2
+env:
+  secrets-manager:
+    NEXUS_USERNAME: arn:aws:secretsmanager:us-east-1:293176983353:secret:nexus-8ZgQUY:username
+    NEXUS_PASSWORD: arn:aws:secretsmanager:us-east-1:293176983353:secret:nexus-8ZgQUY:password
+  variables:
+    ECR_REPO_NAME: fta/snapshot/bedrock
+phases:
+  pre_build:
+    commands:
+      - echo "[pre_build]"
+      - echo "Listing all files..."
+      - ls -al
+      - docker --version
+      - ECR_REPO_URI=$ECR_BASE_REPOSITORY_URI
+      - ACCOUNT_ID="$(echo $CODEBUILD_BUILD_ARN | cut -f5 -d ':')"
+      - REPO_URL="${ECR_REPO_URI}/$ECR_REPO_NAME"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 996142040734.dkr.ecr.us-east-1.amazonaws.com
+      - docker login --username $NEXUS_USERNAME --password $NEXUS_PASSWORD dockerbuildoutputexternal.thehartford.com
+  build:
+    commands:
+      - echo "[image build]"
+      - cd fta-bedrock-image
+      - pwd 
+      - ls -al
+      - echo "Dockerfile"
+      - cat Dockerfile
+      - echo "build_image.sh"
+      - cat build_image.sh
+      - echo "buildspec.dev.yml"
+      - cat buildspec.dev.yml
+      - chmod +x build_image.sh
+      - ./build_image.sh .
+[Container] 2024/09/07 19:13:58.021463 Running command chmod +x build_image.sh
+[Container] 2024/09/07 19:13:58.029332 Running command ./build_image.sh .
+unknown flag: --build-arg NEXUS_USERNAME
+See 'docker buildx build --help'.
+The push refers to repository [570315879108.dkr.ecr.us-east-1.amazonaws.com/fta/snapshot/bedrock]
+An image does not exist locally with the tag: 570315879108.dkr.ecr.us-east-1.amazonaws.com/fta/snapshot/bedrock
+[Container] 2024/09/07 19:13:58.109379 Phase complete: BUILD State: SUCCEEDED
+[Container] 2024/09/07 19:13:58.109394 Phase context status code:  Message: 
+[Container] 2024/09/07 19:13:58.147056 Entering phase POST_BUILD
+[Container] 2024/09/07 19:13:58.148734 Phase complete: POST_BUILD State: SUCCEEDED
+[Container] 2024/09/07 19:13:58.148747 Phase context status code:  Message: 
+[Container] 2024/09/07 19:13:58.212021 Set report auto-discover timeout to 5 seconds
+[Container] 2024/09/07 19:13:58.212131 Expanding base directory path:  .
+[Container] 2024/09/07 19:13:58.215542 Assembling file list
+[Container] 2024/09/07 19:13:58.215554 Expanding .
+[Container] 2024/09/07 19:13:58.218806 Expanding file paths for base directory .
+[Container] 2024/09/07 19:13:58.218816 Assembling file list
+[Container] 2024/09/07 19:13:58.218819 Expanding **/*
+[Container] 2024/09/07 19:13:58.222945 No matching auto-discover report paths found
+[Container] 2024/09/07 19:13:58.223032 Report auto-discover file discovery took 0.011011 seconds
+[Container] 2024/09/07 19:13:58.223048 Phase complete: UPLOAD_ARTIFACTS State: SUCCEEDED
+[Container] 2024/09/07 19:13:58.223136 Phase context status code:  Message: 
