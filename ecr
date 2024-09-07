@@ -607,3 +607,53 @@ phases:
 cache:
   paths:
     - "/root/.cache/pip/**/*"
+------
+
+build_image.sh
+
+#!/usr/bin/env bash
+
+# required env vars (buildspec)
+set -u
+: "$ECR_REPO_URI"
+: "$ECR_REPO_NAME"
+
+if [[ -z "$1" ]]; then
+    echo "Usage: $0 <target_dir>"
+    exit 1
+fi
+TARGET_DIR="$1"
+
+# Declare _buildargs array before the loop
+declare -a _buildargs
+
+NEXUS_USERNAME=${NEXUS_USERNAME:= }
+NEXUS_PASSWORD=${NEXUS_PASSWORD:= }
+
+_workingdir=$(dirname $(readlink -f "$0"))
+_dockerfile="$_workingdir/Dockerfile"
+
+# Define _version
+_version="1.0.0"
+
+_buildargs+=("--build-arg NEXUS_USERNAME=$NEXUS_USERNAME")
+_buildargs+=("--build-arg NEXUS_PASSWORD=$NEXUS_PASSWORD")
+_buildargs+=("--build-arg PYTHON_VERSION=$_version")
+
+# shellcheck disable=SC2068,SC2046
+DOCKER_BUILDKIT=1 docker build \
+    -f "$_dockerfile" \
+    -t "$ECR_REPO_URI/$ECR_REPO_NAME:$_version" \
+    ${_buildargs[@]} \
+    --label APP_ID="$APP_ID" \
+    --label GIT_COMMIT_SHA="$GIT_COMMIT_SHA" \
+    --label CODEBUILD_BUILD_ID="$CODEBUILD_BUILD_ID" \
+    .
+
+# Push the image to the repository
+docker push "$ECR_REPO_URI/$ECR_REPO_NAME:$_version"
+
+if ! cd "$_workingdir"; then
+    echo "Failed to change directory to $_workingdir"
+    exit 1
+fi
